@@ -124,10 +124,10 @@ Ka_H = 100
 Ka_L = 10
 
 # Read in the model RBPs
-ModelHH = pd.read_csv(baseDir + 'Data/Model_RBP/Model_HH.csv').sort_values(by='Motif')
-ModelHL = pd.read_csv(baseDir + 'Data/Model_RBP/Model_HL.csv').sort_values(by='Motif')
-ModelLH = pd.read_csv(baseDir + 'Data/Model_RBP/Model_LH.csv').sort_values(by='Motif')
-ModelLL = pd.read_csv(baseDir + 'Data/Model_RBP/Model_LL.csv').sort_values(by='Motif')
+ModelHH = pd.read_csv(baseDir + 'Model_HH.csv').sort_values(by='Motif')
+ModelHL = pd.read_csv(baseDir + 'Model_HL.csv').sort_values(by='Motif')
+ModelLH = pd.read_csv(baseDir + 'Model_LH.csv').sort_values(by='Motif')
+ModelLL = pd.read_csv(baseDir + 'Model_LL.csv').sort_values(by='Motif')
 
 # Combine the models into a single DataFrame
 Model_Ka = pd.DataFrame({
@@ -256,10 +256,10 @@ simulation_per_pos['LL/R0'] = (simulation_per_pos['LLReq'])/R0
 ################################################################################
 plot_data = pd.DataFrame({
     'pos': simulation_per_pos.pos,
-    'HHReq': simulation_per_pos.HHReq/R0,
-    'HLReq': simulation_per_pos.HLReq/R0,
-    'LHReq': simulation_per_pos.LHReq/R0,
-    'LLReq': simulation_per_pos.LLReq/R0
+    'HHReq': (simulation_per_pos.HHReq/R0)/sum(simulation_per_pos.HHReq/R0),
+    'HLReq': (simulation_per_pos.HLReq/R0)/sum(simulation_per_pos.HLReq/R0),
+    'LHReq': (simulation_per_pos.LHReq/R0)/sum(simulation_per_pos.LHReq/R0),
+    'LLReq': (simulation_per_pos.LLReq/R0)/sum(simulation_per_pos.LLReq/R0)
 })
 
 plot_data = plot_data.melt(id_vars='pos', value_vars=['HHReq', 'HLReq', 'LHReq', 'LLReq'], var_name='variable', value_name='value')

@@ -20,7 +20,7 @@ library(Biostrings)
 
 ## Set basic parameters:
 ################################################################################
-baseDir = '/Users/soonyi/Desktop/Genomics/Specificity/'
+baseDir = './Specificity/'
 
 featureScale = function(X, MAX, MIN) {
   MIN + ((X - min(X, na.rm = TRUE))*(MAX - MIN)) / (max(X, na.rm = TRUE) - min(X, na.rm = TRUE))
@@ -400,7 +400,7 @@ ggplot(nucleotides_df, aes(x = position, y = 1, fill = color)) +
 
 ## Handle simulation data
 ################################################################################
-resultsDir = '/Users/soonyi/Library/CloudStorage/GoogleDrive-sxy530@case.edu/My Drive/Specificity_Paper/Data/Model_RBP/sim_results'
+resultsDir = './Data/Model_RBP/sim_results'
 R0s = c(10, 25, 50, 100, 250, 500, 1000)
 Us = c(29, 30, 31, 32, 33)
 Gs = c(89, 90, 91, 92, 93)
@@ -497,7 +497,7 @@ ggplot(simResult_summary, aes(x = R0)) +
 
 ## Handle simulation data
 ################################################################################
-resultsDir = '/Users/soonyi/Library/CloudStorage/GoogleDrive-sxy530@case.edu/My Drive/Specificity_Paper/Data/Model_RBP/sim_results'
+resultsDir = './Data/Model_RBP/sim_results'
 R0s = c(10, 25, 50, 100, 250, 500, 1000)
 Us = c(29, 30, 31, 32, 33)
 Gs = c(89, 90, 91, 92, 93)
@@ -595,7 +595,7 @@ ggplot(simResult_summary, aes(x = R0)) +
 
 ## Per Pos Binding Probaability
 ################################################################################
-resultsDir = '/Users/soonyi/Library/CloudStorage/GoogleDrive-sxy530@case.edu/My Drive/Specificity_Paper/Data/Model_RBP/sim_results'
+resultsDir = './Data/Model_RBP/sim_results'
 
 simResult_EquiMolar = fread(paste0(resultsDir, '/PerPos_Equimolar_RBPs_10_RNA.csv'))
 simResult_EquiMolar = simResult_EquiMolar[, c('pos', 'nt', "HH/R0", "HL/R0", "LH/R0", "LL/R0")]
@@ -650,7 +650,55 @@ ggplot(simResult_DiffMolar, aes(x = pos)) +
 
 ################################################################################
 
+## Per Pos Binding Probaability
+################################################################################
+library(pracma)
 
+simResult_EquiMolar = fread('./Data/plot_data.csv')
+simResult_EquiMolar = simResult_EquiMolar[, c('pos', 'nt', "HHReq", "HLReq", "LHReq", "LLReq")]
+
+HH0 = 100
+HL0 = 100
+LH0 = 100
+LL0 = 100
+
+RNA_len = nchar(RNA)
+
+simResult_EquiMolar$HHReq = (simResult_EquiMolar$HHReq / trapz(simResult_EquiMolar$pos, simResult_EquiMolar$HHReq)) / (HH0/RNA_len) * 100
+simResult_EquiMolar$HLReq = (simResult_EquiMolar$HLReq / trapz(simResult_EquiMolar$pos, simResult_EquiMolar$HLReq)) / (HL0/RNA_len) * 100
+simResult_EquiMolar$LHReq = (simResult_EquiMolar$LHReq / trapz(simResult_EquiMolar$pos, simResult_EquiMolar$LHReq)) / (LH0/RNA_len) * 100
+simResult_EquiMolar$LLReq = (simResult_EquiMolar$LLReq / trapz(simResult_EquiMolar$pos, simResult_EquiMolar$LLReq)) / (LL0/RNA_len) * 100
+
+
+ggplot(simResult_EquiMolar, aes(x = pos)) +
+  geom_line(aes(y = `HHReq`, color = "HH", linetype = "HH"), linewidth = 0.5) +
+  geom_line(aes(y = `HLReq`, color = "HL", linetype = "HL"), linewidth = 0.5) +
+  geom_line(aes(y = `LHReq`, color = "LH", linetype = "LH"), linewidth = 0.5) +
+  geom_line(aes(y = `LLReq`, color = "LL", linetype = "LL"), linewidth = 0.5) +
+  labs(title = "Line Graph of HH/HL/LH/LL Values with R0 as X-axis") +
+  xlab("Initial RNA Concentration") +
+  ylab("Relative Binding Probability") +
+  # scale_y_continuous(trans = log2_trans(), limits = c(0.1, 4),
+  #                    breaks = c(0.1, 0.5, 1, 2, 4),
+  #                    labels = c("0.1", '0.5', "1", "2", "4")) +
+  scale_y_continuous(limits = c(0, 3), breaks = seq(0, 3, by = 0.5)) +
+  scale_x_continuous(
+    position = "bottom",
+    breaks = 1:nchar(RNA),
+    labels = strsplit(RNA, '')[[1]]
+  ) +
+  scale_color_manual(values = c("HH" = "#4478ab", "HL" = "#4478ab", "LH" = "#ed6677", "LL" = "#ed6677")) +
+  scale_linetype_manual(values = c("HH" = "solid", "HL" = "dashed", "LH" = "dashed", "LL" = "solid")) +
+  theme_minimal() +
+  theme_bw() + 
+  theme(axis.text = element_text(size=10), 
+        axis.title = element_text(size=14, face = 'bold'), 
+        legend.text = element_text(size=14))
+
+
+
+
+################################################################################
 
 
 
