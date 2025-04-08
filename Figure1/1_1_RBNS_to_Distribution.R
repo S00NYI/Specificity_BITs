@@ -83,6 +83,10 @@ EIF4G2 = 'EIF4G2'
 EIF4G2 = RBNS[, c('Motif', 'EIF4G2')]
 colnames(EIF4G2) = c('motif', 'enrichment')
 
+RBM25 = 'RBM25'
+RBM25 = RBNS[, c('Motif', 'RBM25')]
+colnames(RBM25) = c('motif', 'enrichment')
+
 
 ggplot() +
   geom_histogram(data = hnRNPC, aes(x = enrichment), binwidth = 0.001, fill = "black", alpha = 1.0) +
@@ -104,8 +108,19 @@ ggplot() +
         axis.title = element_text(size=14, face = 'bold'), 
         legend.text = element_text(size=14))
 
+ggplot() +
+  geom_histogram(data = RBM25, aes(x = enrichment), binwidth = 0.001, fill = "black", alpha = 1.0) +
+  labs(title = "RBM25", x = "RBNS Score", y = "Frequency") +
+  scale_y_continuous(limits = c(0, 75), breaks = seq(0, 75, by = 25)) + 
+  theme_minimal() +
+  theme_bw() + 
+  theme(axis.text = element_text(size=14), 
+        axis.title = element_text(size=14, face = 'bold'), 
+        legend.text = element_text(size=14))
 
 hnRNPC_MS = plot_MS(return_MS(hnRNPC))
 
 EIF4G2_MS = plot_MS(return_MS(EIF4G2))
+
+RBM25_MS = plot_MS(return_MS(RBM25))
 

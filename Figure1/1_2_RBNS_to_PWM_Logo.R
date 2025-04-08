@@ -26,7 +26,7 @@ RBPs = colnames(RBNS)[2:ncol(RBNS)]
 
 ## For hnRNPC and EIF4G2:
 ################################################################################
-numMotif = 10
+numMotif = 20
 
 RBP = 'HNRNPC'
 data = data.frame(RBNS[, c('Motif', RBP)])
@@ -48,6 +48,24 @@ seqLogo(PWM, ic.scale = F)
 
 
 RBP = 'EIF4G2'
+data = data.frame(RBNS[, c('Motif', RBP)])
+data = data[order(-data[, RBP]), ]
+rownames(data) = NULL
+
+motif = DNAStringSet(gsub("U", "T", data$Motif[1:numMotif]))
+pwm = PWM(consensusMatrixs(motif))
+pwm = pwm - min(pwm)
+
+pwm[, 1] = pwm[, 1]/sum(pwm[, 1])
+pwm[, 2] = pwm[, 2]/sum(pwm[, 2])
+pwm[, 3] = pwm[, 3]/sum(pwm[, 3])
+pwm[, 4] = pwm[, 4]/sum(pwm[, 4])
+pwm[, 5] = pwm[, 5]/sum(pwm[, 5])
+
+PWM = makePWM(pwm, alphabet = 'RNA')
+seqLogo(PWM, ic.scale = F)
+
+RBP = 'RBM25'
 data = data.frame(RBNS[, c('Motif', RBP)])
 data = data[order(-data[, RBP]), ]
 rownames(data) = NULL
