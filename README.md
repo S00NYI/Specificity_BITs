@@ -1,6 +1,6 @@
 ## RBP Specificity Analysis Scripts:
 - Author: Soon Yi
-- Last updated: 2024-02-17
+- Last updated: 2025-04-15
 -------------------------------------------------------------------------------------------------------------------
 ![alt text](https://github.com/S00NYI/Specificity_BITs/blob/main/Analysis_Outline.png?raw=true)
 -------------------------------------------------------------------------------------------------------------------
