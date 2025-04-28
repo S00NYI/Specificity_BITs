@@ -26,7 +26,7 @@ RBPs = colnames(RBNS)[2:ncol(RBNS)]
 
 ## For hnRNPC and EIF4G2:
 ################################################################################
-numMotif = 20
+numMotif = 10
 
 RBP = 'HNRNPC'
 data = data.frame(RBNS[, c('Motif', RBP)])
