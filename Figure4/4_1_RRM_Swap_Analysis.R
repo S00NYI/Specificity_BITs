@@ -202,6 +202,13 @@ UUUUU_Rank = c()
 GGGGG_SI = c()
 GGGGG_Rank = c()
 
+
+DATE = format(Sys.Date(), "%Y%m%d")
+if (!dir.exists(paste0(baseDir, '/Output/', DATE, '/'))) {
+  dir.create(paste0(baseDir, '/Output/', DATE, '/'), recursive = TRUE, showWarnings = FALSE)
+  print(paste("Created directory:", paste0(baseDir, '/Output/', DATE, '/')))
+}
+
 for (sample in samples) {
   # Read peaks and make GR object
   print(paste0('Working on ', sample, '....'))
@@ -227,9 +234,19 @@ for (sample in samples) {
   
   for (extension in extensions) {
     print(paste0('     Working on ', extension, 'nt extension....'))
-    Peak_GR = GRanges(seqnames = Rle(Peak$chr),
-                      ranges = IRanges(start = Peak$start - extension, end = Peak$end),
-                      strand = Rle(Peak$strand))
+    
+    ######
+    # Peak_GR = GRanges(seqnames = Rle(Peak$chr),
+    #                   ranges = IRanges(start = Peak$start - extension, end = Peak$end),
+    #                   strand = Rle(Peak$strand))
+    
+    Peak_GR_original = GRanges(seqnames = Rle(Peak$chr),
+                               ranges = IRanges(start = Peak$start - extension, end = Peak$end),
+                               strand = Rle(Peak$strand))
+    original_width = width(Peak_GR_original)
+    new_width = original_width + extension
+    Peak_GR = resize(Peak_GR_original, width = new_width, fix = "end")
+    ######
     
     # Get sequence of peaks and count K-mers
     Peak_Seqs = getSeq(BSgenome.Hsapiens.UCSC.hg38, Peak_GR, as.character = TRUE)
@@ -304,13 +321,13 @@ for (sample in samples) {
     print(paste0('     Writing Kmer information....'))
     
     write.csv(Peak_KMers_C,
-              paste0(baseDir, '/Output/', sample, '_RelativeFrequency_', extension, 'ntExt_5mer.csv'), quote = F)
+              paste0(baseDir, '/Output/', DATE, '/', sample, '_RelativeFrequency_', extension, 'ntExt_5mer.csv'), quote = F)
     write.csv(KMer_Matches_Scaled,
-              paste0(baseDir, '/Output/', sample, '_RelativeFrequencyNormalized_', extension, 'ntExt_5mer.csv'), quote = F)
+              paste0(baseDir, '/Output/', DATE, '/', sample, '_RelativeFrequencyNormalized_', extension, 'ntExt_5mer.csv'), quote = F)
     write.csv(KMer_SpecificityIndex,
-              paste0(baseDir, '/Output/', sample, '_SIperMotif_', extension, 'ntExt_5mer.csv'), quote = F)
+              paste0(baseDir, '/Output/', DATE, '/', sample, '_SIperMotif_', extension, 'ntExt_5mer.csv'), quote = F)
     write.csv(hist_count,
-              paste0(baseDir, '/Output/', sample, '_Histogram_', extension, 'ntExt_5mer.csv'), quote = F)
+              paste0(baseDir, '/Output/', DATE, '/', sample, '_Histogram_', extension, 'ntExt_5mer.csv'), quote = F)
     
   }
 }
@@ -324,7 +341,7 @@ TopMotif_Data_Compiled = data.frame(CLIP = UUUUU_CLIP,
                                  )
 
 write.csv(TopMotif_Data_Compiled,
-          paste0(baseDir, '/Output/TopMotif_SI_5mer_Optimization.csv'), quote = F)
+          paste0(baseDir, '/Output/', DATE, '/TopMotif_SI_5mer_Optimization.csv'), quote = F)
 
 ################################################################################
 
@@ -441,10 +458,11 @@ library(seqLogo)
 
 baseDir = '~/Desktop/Genomics/Specificity/Sequencing/Processed/IndividualPeaks'
 
-numMotif = 20
+numMotif = 10
 
 ## For hnRNPC WT
-data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
+# data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
+data = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
 
 data = data.frame(data[, c('MOTIF', 'COUNT')])
 data = data[order(-data[, 'COUNT']), ]
@@ -464,7 +482,8 @@ PWM = makePWM(pwm, alphabet = 'RNA')
 seqLogo(PWM, ic.scale = F)
 
 ## For hnRNPC Mut
-data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
+# data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
+data = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
 
 data = data.frame(data[, c('MOTIF', 'COUNT')])
 data = data[order(-data[, 'COUNT']), ]
@@ -483,8 +502,9 @@ pwm[, 5] = pwm[, 5]/sum(pwm[, 5])
 PWM = makePWM(pwm, alphabet = 'RNA')
 seqLogo(PWM, ic.scale = F)
 
-## For hnRNPC WT
-data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
+## For RBM25 WT
+# data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
+data = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
 
 data = data.frame(data[, c('MOTIF', 'COUNT')])
 data = data[order(-data[, 'COUNT']), ]
@@ -503,8 +523,9 @@ pwm[, 5] = pwm[, 5]/sum(pwm[, 5])
 PWM = makePWM(pwm, alphabet = 'RNA')
 seqLogo(PWM, ic.scale = F)
 
-## For hnRNPC WT
-data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
+## For RBM25 Mut
+# data = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
+data = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
 
 data = data.frame(data[, c('MOTIF', 'COUNT')])
 data = data[order(-data[, 'COUNT']), ]
@@ -527,8 +548,10 @@ seqLogo(PWM, ic.scale = F)
 
 ## Histogram
 ################################################################################
-hnRNPC_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
-hnRNPC_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
+# hnRNPC_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
+# hnRNPC_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
+hnRNPC_WT = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
+hnRNPC_Mut = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
 
 ggplot() +
   geom_histogram(data = hnRNPC_WT, aes(x = COUNT), binwidth = 0.01, fill = "darkgoldenrod1", alpha = 0.5) +
@@ -542,8 +565,10 @@ ggplot() +
         legend.text = element_text(size=14))
 
 
-RBM25_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
-RBM25_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
+# RBM25_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
+# RBM25_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
+RBM25_WT = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
+RBM25_Mut = read_csv(paste0(baseDir, '/Output/', DATE, '/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
 
 ggplot() +
   geom_histogram(data = RBM25_WT, aes(x = COUNT), binwidth = 0.01, fill = "darkgoldenrod1", alpha = 0.5) +
@@ -560,22 +585,22 @@ ggplot() +
 
 ## MS Analysis
 ################################################################################
-hnRNPC_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
+# hnRNPC_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_WT.csv'), col_names = T, show_col_types = F)
 hnRNPC_WT = data.frame(hnRNPC_WT[, c('MOTIF', 'COUNT')])
 colnames(hnRNPC_WT) = c('Motif', 'Score')
 hnRNPC_WT = hnRNPC_WT %>% mutate(Motif = str_replace_all(Motif, "T", "U"))
 
-hnRNPC_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
+# hnRNPC_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/hnRNPC_Mut.csv'), col_names = T, show_col_types = F)
 hnRNPC_Mut = data.frame(hnRNPC_Mut[, c('MOTIF', 'COUNT')])
 colnames(hnRNPC_Mut) = c('Motif', 'Score')
 hnRNPC_Mut = hnRNPC_Mut %>% mutate(Motif = str_replace_all(Motif, "T", "U"))
 
-RBM25_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
+# RBM25_WT = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_WT.csv'), col_names = T, show_col_types = F)
 RBM25_WT = data.frame(RBM25_WT[, c('MOTIF', 'COUNT')])
 colnames(RBM25_WT) = c('Motif', 'Score')
 RBM25_WT = RBM25_WT %>% mutate(Motif = str_replace_all(Motif, "T", "U"))
 
-RBM25_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
+# RBM25_Mut = read_csv(paste0(baseDir, '/Output/All_Peaks/For_PWM/RBM25_Mut.csv'), col_names = T, show_col_types = F)
 RBM25_Mut = data.frame(RBM25_Mut[, c('MOTIF', 'COUNT')])
 colnames(RBM25_Mut) = c('Motif', 'Score')
 RBM25_Mut = RBM25_Mut %>% mutate(Motif = str_replace_all(Motif, "T", "U"))
@@ -591,8 +616,11 @@ RBM25_WT_UUUUUAnchored$Score = RBM25_WT$Score + (1 - RBM25_WT$Score[RBM25_WT$Mot
 RBM25_Mut_UUUUUAnchored = RBM25_Mut
 RBM25_Mut_UUUUUAnchored$Score = RBM25_Mut$Score + (1 - RBM25_Mut$Score[RBM25_Mut$Motif == "UUUUU"])
 
-plot_MS(return_MS(RBM25_WT_UUUUUAnchored, top_motif = "UUUUU"))
-plot_MS(return_MS(RBM25_Mut_UUUUUAnchored, top_motif = "UUUUU"))
+# plot_MS(return_MS(RBM25_WT_UUUUUAnchored, top_motif = "UUUUU"))
+# plot_MS(return_MS(RBM25_Mut_UUUUUAnchored, top_motif = "UUUUU"))
+
+plot_MS(return_MS(RBM25_WT, top_motif = "UUUUU"))
+plot_MS(return_MS(RBM25_Mut, top_motif = "UUUUU"))
 
 
 MS_hnRNPC_WT = return_MS(hnRNPC_WT)
@@ -611,6 +639,15 @@ MS_RBM25_Mut = return_MS(RBM25_Mut, "UUUUU")
 MS_RBM25_Mut = MS_RBM25_Mut[, c("Pos1", "Pos2", "Pos3", "Pos4", "Pos5")] - min(MS_RBM25_Mut[, c("Pos1", "Pos2", "Pos3", "Pos4", "Pos5")])
 mean(unlist(MS_RBM25_Mut))
 
+hnRNPC_FC = data.frame(Motif = hnRNPC_WT$Motif,
+                       WT = hnRNPC_WT$Score,
+                       Mut = hnRNPC_Mut$Score,
+                       FC = hnRNPC_Mut$Score/hnRNPC_WT$Score)
+
+RBM25_FC = data.frame(Motif = RBM25_WT$Motif,
+                      WT = RBM25_WT$Score,
+                      Mut = RBM25_Mut$Score,
+                      FC = RBM25_Mut$Score/RBM25_WT$Score)
 
 ################################################################################
 
