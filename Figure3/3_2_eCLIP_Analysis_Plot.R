@@ -71,7 +71,8 @@ KMer_combinations = apply(KMer_combinations, 1, paste, collapse = "")
 KMer_DSS = DNAStringSet(KMer_combinations)
 KMer_PDict = PDict(KMer_DSS)
 
-DATE = '20240217'
+# DATE = '20240217'
+DATE = '20250427'
 ################################################################################
 
 
@@ -397,7 +398,9 @@ for (RBP in RBPs$RBP) {
 }
 
 
-# write_csv(eCLIP_Analysis, paste0(baseDir, 'Data/', DATE, '_', K, '_mer_RBNS_eCLIP_Analysis.csv'), quote = 'none', col_names = T)
+write_csv(eCLIP_Analysis, paste0(baseDir, 'eCLIP_peak/Output/', DATE, '_', K, '_mer_RBNS_eCLIP_Analysis.csv'), quote = 'none', col_names = T)
+
+
 ################################################################################
 
 ## hnRNPC: eCLIP vs RBNS
@@ -606,8 +609,8 @@ temp_plotData = data.frame(RBP = eCLIP_Analysis$RBP,
 
 ## Specificity vs Sensitivity for Apparent and Inherent
 ################################################################################
-Corr_Y = cor(temp_plotData$AS, temp_plotData$AT, method = c('spearman'))
-Corr_N = cor(temp_plotData$IS, temp_plotData$IT, method = c('spearman'))
+Corr_Y = cor(temp_plotData$AS, temp_plotData$AT, method = c('pearson'))
+Corr_N = cor(temp_plotData$IS, temp_plotData$IT, method = c('pearson'))
 
 ggplot() +
   geom_point(data = temp_plotData, aes(x = (AS), y = AT), fill = 'cornflowerblue', alpha = 1, shape = 21, size = 4) +
@@ -635,8 +638,8 @@ ggplot() +
 
 ## Apparent vs Inherent Specificity
 ################################################################################
-Corr_Y = cor((temp_plotData %>% filter(Structure == 'Y'))$AS, (temp_plotData %>% filter(Structure == 'Y'))$IS, method = c('spearman'))
-Corr_N = cor((temp_plotData %>% filter(Structure == 'N'))$AS, (temp_plotData %>% filter(Structure == 'N'))$IS, method = c('spearman'))
+Corr_Y = cor((temp_plotData %>% filter(Structure == 'Y'))$AS, (temp_plotData %>% filter(Structure == 'Y'))$IS, method = c('pearson'))
+Corr_N = cor((temp_plotData %>% filter(Structure == 'N'))$AS, (temp_plotData %>% filter(Structure == 'N'))$IS, method = c('pearson'))
 
 ggplot() +
   geom_point(data = temp_plotData %>% filter(Structure == 'Y'), aes(x = IS, y = AS), fill = 'antiquewhite2', alpha = 1, shape = 21, size = 4) +
